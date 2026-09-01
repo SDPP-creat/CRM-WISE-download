@@ -114,7 +114,7 @@ console.log('\n=== 7/7 deploy site (Pages) ===');
 run('npm', ['run', 'build'], { cwd: webDir, input: undefined, env: { ...env, VITE_API_URL: apiUrl } });
 // garante o projeto Pages (idempotente)
 wr(['pages', 'project', 'create', PAGES_PROJECT, '--production-branch', 'main'], { allowFail: true });
-out = wr(['pages', 'deploy', join(webDir, 'dist'), '--project-name', PAGES_PROJECT, '--commit-dirty=true']);
+out = wr(['pages', 'deploy', join(webDir, 'dist'), '--project-name', PAGES_PROJECT, '--branch', 'main', '--commit-dirty=true']);
 const pagesUrl = (out.match(/https:\/\/[^\s]*pages\.dev/i) || [])[0] || `https://${PAGES_PROJECT}.pages.dev`;
 
 console.log('\n==================================================');
