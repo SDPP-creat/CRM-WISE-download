@@ -133,6 +133,21 @@ adminRoutes.post('/posts/:id/reprocess', async (c) => {
   return c.json({ ok: true });
 });
 
+/** Reprocessa em lote todas as notícias pendentes/falhas (traduz + analisa). */
+adminRoutes.post('/reprocess-pending', async (c) => {
+  const rows = await c.env.DB
+    .prepare("SELECT id FROM posts WHERE processing_status IN ('pending','failed') ORDER BY created_at DESC LIMIT 200")
+    .all<{ id: number }>();
+  const ids = (rows.results ?? []).map((r) => r.id);
+  const wu = c.executionCtx.waitUntil.bind(c.executionCtx);
+  for (const id of ids) {
+    await c.env.DB.prepare("UPDATE posts SET processing_status = 'processing', ai_error = NULL WHERE id = ?").bind(id).run();
+    await enqueue(c.env, { type: 'process_post', postId: id }, wu);
+  }
+  await audit(c.env.DB, String(c.get('user').id), 'reprocess_pending', 'post', 'batch', { count: ids.length });
+  return c.json({ ok: true, queued: ids.length });
+});
+
 /** Edita tradução, resumo, análise Wise, país, categoria, publicação. */
 adminRoutes.patch('/posts/:id', async (c) => {
   const id = Number(c.req.param('id'));

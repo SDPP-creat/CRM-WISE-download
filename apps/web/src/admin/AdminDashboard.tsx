@@ -25,6 +25,17 @@ export function AdminDashboard() {
     }
   };
 
+  const reprocess = async () => {
+    setMsg('');
+    try {
+      const r = await api.admin.reprocessPending();
+      setMsg(`Reprocessando ${r.queued} notícias com IA… atualizando em instantes.`);
+      setTimeout(load, 10000);
+    } catch (e) {
+      setMsg((e as Error).message);
+    }
+  };
+
   if (!o) return <Spinner />;
 
   const cards = [
@@ -60,6 +71,9 @@ export function AdminDashboard() {
 
       <button onClick={collect} disabled={collecting} className="btn-primary w-full py-3">
         <IconPlay width={16} height={16} /> {collecting ? 'Coletando…' : 'Coletar agora (todas as fontes)'}
+      </button>
+      <button onClick={reprocess} disabled={collecting} className="btn-ghost mt-2 w-full py-3">
+        Reprocessar pendentes (traduzir + analisar)
       </button>
       {msg && <p className="mt-2 text-center text-xs text-gray">{msg}</p>}
     </div>
