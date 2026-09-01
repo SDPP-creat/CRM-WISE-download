@@ -5,7 +5,7 @@ import { extractJson, validateAnalysis } from './validate.js';
 import { buildQaPrompt, QA_SYSTEM_PROMPT, validateQaResult, type QaAnswerInput } from './qa.js';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-sonnet-4-5';
+const DEFAULT_MODEL = 'claude-sonnet-5';
 
 // Preços aproximados por 1M tokens (USD). Ajustável; usado só para estimativa.
 const PRICE_PER_MTOK: Record<string, { in: number; out: number }> = {

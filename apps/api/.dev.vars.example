@@ -1,7 +1,7 @@
 # Copie para apps/api/.dev.vars (gitignored) e preencha o que tiver.
 # Mesmo formato do .env.example da raiz. Sem chaves, o app roda em modo limitado.
 ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-sonnet-4-5
+ANTHROPIC_MODEL=claude-sonnet-5
 AI_MAX_TOKENS=4096
 REDDIT_CLIENT_ID=
 REDDIT_CLIENT_SECRET=
