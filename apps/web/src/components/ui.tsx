@@ -48,12 +48,16 @@ export function Spinner({ label }: { label?: string }) {
   );
 }
 
-export function EmptyState({ icon = '📭', title, hint }: { icon?: string; title: string; hint?: string }) {
+export function EmptyState({ title, hint }: { icon?: string; title: string; hint?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-      <div className="text-4xl">{icon}</div>
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-panel2 text-gray-muted">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M8 4v5" />
+        </svg>
+      </div>
       <div className="font-semibold">{title}</div>
-      {hint && <div className="text-sm text-gray max-w-xs">{hint}</div>}
+      {hint && <div className="max-w-xs text-sm text-gray">{hint}</div>}
     </div>
   );
 }

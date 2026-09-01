@@ -14,9 +14,15 @@ export function AdminDashboard() {
 
   const collect = async () => {
     setCollecting(true); setMsg('');
-    try { const r = await api.admin.collect(); setMsg(`Coleta: ${r.collected} fontes, ${r.newPosts} novos posts.`); load(); }
-    catch (e) { setMsg((e as Error).message); }
-    finally { setCollecting(false); }
+    try {
+      await api.admin.collect();
+      setMsg('Coleta iniciada em segundo plano. As notícias aparecem em instantes — atualizando…');
+      setTimeout(load, 8000);
+    } catch (e) {
+      setMsg((e as Error).message);
+    } finally {
+      setCollecting(false);
+    }
   };
 
   if (!o) return <Spinner />;

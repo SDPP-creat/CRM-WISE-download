@@ -84,7 +84,7 @@ export const api = {
     sources: () => req<{ sources: Array<Record<string, unknown>> }>('/api/admin/sources'),
     patchSource: (id: number, body: Record<string, unknown>) => req(`/api/admin/sources/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     testSource: (slug: string) => req<{ validation: { ok: boolean; errors: string[] }; health: { ok: boolean; message: string } }>(`/api/admin/sources/${slug}/test`, { method: 'POST' }),
-    collect: (slug?: string) => req<{ ok: boolean; collected: number; newPosts: number }>(`/api/admin/collect${slug ? `?slug=${slug}` : ''}`, { method: 'POST' }),
+    collect: (slug?: string) => req<{ ok: boolean; started?: boolean; message?: string }>(`/api/admin/collect${slug ? `?slug=${slug}` : ''}`, { method: 'POST' }),
     health: () => req<{ collectors: Array<Record<string, unknown>> }>('/api/admin/health'),
     review: () => req<{ posts: Array<Record<string, unknown>> }>('/api/admin/review'),
     reprocess: (id: number) => req(`/api/admin/posts/${id}/reprocess`, { method: 'POST' }),

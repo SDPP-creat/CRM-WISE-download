@@ -13,7 +13,9 @@ function q(value: string | number | null | undefined): string {
  * O usuário admin é criado à parte pelo script de seed (precisa de hash).
  */
 export function seedSql(): string {
-  const lines: string[] = ['PRAGMA foreign_keys = ON;', 'BEGIN TRANSACTION;'];
+  // Sem BEGIN/COMMIT: o D1 remoto rejeita transações explícitas via SQL
+  // (o `wrangler d1 execute` já aplica as instruções atomicamente).
+  const lines: string[] = ['PRAGMA foreign_keys = ON;'];
 
   // Países
   lines.push(`INSERT OR IGNORE INTO countries(code, name) VALUES (${q(GLOBAL_CODE)}, ${q(GLOBAL_NAME)});`);
@@ -65,7 +67,6 @@ export function seedSql(): string {
     );
   }
 
-  lines.push('COMMIT;');
   return lines.join('\n');
 }
 

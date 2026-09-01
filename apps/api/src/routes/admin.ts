@@ -88,12 +88,16 @@ adminRoutes.post('/sources/:slug/test', async (c) => {
   return c.json({ validation, health });
 });
 
-/** Coleta imediata (todas as fontes ou uma). */
+/** Coleta imediata (todas as fontes ou uma). Roda em segundo plano (não trava). */
 adminRoutes.post('/collect', async (c) => {
   const slug = c.req.query('slug');
-  const result = await runCollection(c.env, { force: true, slug });
-  await audit(c.env.DB, String(c.get('user').id), 'collect_now', 'source', slug ?? 'all', result);
-  return c.json({ ok: true, ...result });
+  const actor = String(c.get('user').id);
+  c.executionCtx.waitUntil(
+    runCollection(c.env, { force: true, slug })
+      .then((result) => audit(c.env.DB, actor, 'collect_now', 'source', slug ?? 'all', result))
+      .catch((err) => console.error('collect_now falhou', err)),
+  );
+  return c.json({ ok: true, started: true, message: 'Coleta iniciada em segundo plano. As notícias aparecem em instantes.' });
 });
 
 // ---------------------------------------------------------------- Collectors health / crawl runs

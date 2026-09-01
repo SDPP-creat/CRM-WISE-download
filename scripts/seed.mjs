@@ -65,7 +65,10 @@ const sqlPath = join(tmp, 'seed.sql');
 writeFileSync(sqlPath, fullSql);
 
 console.log(`[seed] aplicando seed em D1 (${target}). Admin: ${phone}`);
-const res = spawnSync('npx', ['wrangler', 'd1', 'execute', 'wise_news', target, '--file', sqlPath], {
+// Usa a config gerada pelo deploy (com o database_id real) quando existir.
+const generatedCfg = join(root, 'apps/api', 'wrangler.generated.toml');
+const cfgArgs = target === '--remote' && existsSync(generatedCfg) ? ['--config', generatedCfg] : [];
+const res = spawnSync('npx', ['wrangler', 'd1', 'execute', 'wise_news', target, ...cfgArgs, '--file', sqlPath], {
   cwd: join(root, 'apps/api'),
   stdio: 'inherit',
 });
