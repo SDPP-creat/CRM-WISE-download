@@ -27,6 +27,11 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Assume o controle imediatamente e limpa caches antigos ao publicar
+        // nova versão (evita "site continua igual" por cache do PWA).
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
