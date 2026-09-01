@@ -47,6 +47,8 @@ export default {
     ctx.waitUntil(runCollection(env, { force: daily }).then((r) => console.log('collection', r)).catch((e) => console.error('collection error', e)));
     // Re-agrega perguntas abertas para trazer respostas novas (monitoramento ao vivo).
     ctx.waitUntil(revisitOpenQuestions(env).catch((e) => console.error('revisit questions error', e)));
+    // Auto-cura: reprocessa um lote de notícias pendentes/travadas com IA.
+    ctx.waitUntil(reprocessBacklog(env).catch((e) => console.error('reprocess backlog error', e)));
   },
 
   /** Consumidor da fila do pipeline (processamento + DLQ). */
@@ -78,6 +80,27 @@ async function revisitOpenQuestions(env: Env): Promise<void> {
     .all<{ id: number }>();
   for (const r of rows.results ?? []) {
     await enqueue(env, { type: 'aggregate_question', questionId: r.id });
+  }
+}
+
+/**
+ * Reprocessa (com IA) notícias pendentes/falhas e as que ficaram "travadas" em
+ * processing há mais de 3 min. Processa inline dentro do waitUntil do cron, que
+ * tem tempo mais generoso que o pós-resposta HTTP — assim o backlog se completa
+ * sozinho a cada execução do cron.
+ */
+async function reprocessBacklog(env: Env): Promise<void> {
+  const rows = await env.DB
+    .prepare(
+      `SELECT id FROM posts
+       WHERE processing_status IN ('pending','failed')
+          OR (processing_status = 'processing' AND processed_at IS NULL AND fetched_at < datetime('now','-3 minutes'))
+       ORDER BY created_at DESC LIMIT 8`,
+    )
+    .all<{ id: number }>();
+  for (const r of rows.results ?? []) {
+    await env.DB.prepare("UPDATE posts SET processing_status = 'processing' WHERE id = ?").bind(r.id).run();
+    await enqueue(env, { type: 'process_post', postId: r.id });
   }
 }
 

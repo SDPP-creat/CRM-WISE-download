@@ -133,19 +133,32 @@ adminRoutes.post('/posts/:id/reprocess', async (c) => {
   return c.json({ ok: true });
 });
 
-/** Reprocessa em lote todas as notícias pendentes/falhas (traduz + analisa). */
+/**
+ * Reprocessa notícias pendentes/falhas/travadas com IA. Reseta travados para
+ * 'pending', processa um lote pequeno NA HORA (retorno imediato) e deixa o
+ * restante para o cron concluir automaticamente (auto-cura).
+ */
 adminRoutes.post('/reprocess-pending', async (c) => {
-  const rows = await c.env.DB
-    .prepare("SELECT id FROM posts WHERE processing_status IN ('pending','failed') ORDER BY created_at DESC LIMIT 200")
+  // Reseta travados (processing sem conclusão) e falhas para pending.
+  await c.env.DB
+    .prepare("UPDATE posts SET processing_status = 'pending', ai_error = NULL WHERE processing_status IN ('failed','processing') AND processed_at IS NULL")
+    .run();
+
+  const total = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM posts WHERE processing_status = 'pending'").first<{ n: number }>();
+
+  // Processa um lote pequeno de forma síncrona (cabe no tempo da requisição).
+  const chunk = await c.env.DB
+    .prepare("SELECT id FROM posts WHERE processing_status = 'pending' ORDER BY created_at DESC LIMIT 3")
     .all<{ id: number }>();
-  const ids = (rows.results ?? []).map((r) => r.id);
-  const wu = c.executionCtx.waitUntil.bind(c.executionCtx);
-  for (const id of ids) {
-    await c.env.DB.prepare("UPDATE posts SET processing_status = 'processing', ai_error = NULL WHERE id = ?").bind(id).run();
-    await enqueue(c.env, { type: 'process_post', postId: id }, wu);
+  let done = 0;
+  for (const r of chunk.results ?? []) {
+    await c.env.DB.prepare("UPDATE posts SET processing_status = 'processing' WHERE id = ?").bind(r.id).run();
+    try { await enqueue(c.env, { type: 'process_post', postId: r.id }); done++; } catch { /* segue */ }
   }
-  await audit(c.env.DB, String(c.get('user').id), 'reprocess_pending', 'post', 'batch', { count: ids.length });
-  return c.json({ ok: true, queued: ids.length });
+
+  const remaining = Math.max(0, (total?.n ?? 0) - done);
+  await audit(c.env.DB, String(c.get('user').id), 'reprocess_pending', 'post', 'batch', { done, remaining });
+  return c.json({ ok: true, processed: done, remaining, message: remaining > 0 ? `${done} processadas agora; ${remaining} restantes serão concluídas automaticamente pelo coletor (a cada 15 min) ou clique novamente.` : `${done} processadas.` });
 });
 
 /** Edita tradução, resumo, análise Wise, país, categoria, publicação. */

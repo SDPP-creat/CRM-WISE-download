@@ -29,7 +29,7 @@ export function AdminDashboard() {
     setMsg('');
     try {
       const r = await api.admin.reprocessPending();
-      setMsg(`Reprocessando ${r.queued} notícias com IA… atualizando em instantes.`);
+      setMsg(r.message || `${r.processed} processadas.`);
       setTimeout(load, 10000);
     } catch (e) {
       setMsg((e as Error).message);

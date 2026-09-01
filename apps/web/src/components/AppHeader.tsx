@@ -7,7 +7,7 @@ export function AppHeader({ showSearch = true }: { showSearch?: boolean }) {
   return (
     <header className="safe-top sticky top-0 z-30 bg-bg/95 px-4 pb-3 pt-4 backdrop-blur">
       <div className="flex items-center justify-between">
-        <Logo width={150} />
+        <Logo size="md" />
       </div>
       {showSearch && (
         <button

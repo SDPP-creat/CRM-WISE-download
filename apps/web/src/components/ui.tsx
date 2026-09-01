@@ -1,8 +1,18 @@
-import { logoSvg } from '@wise-news/ui';
 import type { ReactNode } from 'react';
 
-export function Logo({ width = 160 }: { width?: number }) {
-  return <div aria-label="WISE NEWS" dangerouslySetInnerHTML={{ __html: logoSvg({ width, withText: true }) }} />;
+/** Marca em texto (sem badge): WISE (ivory) NEWS (dourado), tipografia Sora. */
+export function Logo({ size = 'md', tagline = true }: { size?: 'sm' | 'md' | 'lg'; tagline?: boolean; width?: number }) {
+  const cls = size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-lg' : 'text-2xl';
+  return (
+    <div aria-label="WISE NEWS" className="flex flex-col leading-none">
+      <div className={`font-display font-extrabold tracking-tight ${cls}`}>
+        <span className="text-ivory">WISE</span>&nbsp;<span className="text-gold">NEWS</span>
+      </div>
+      {tagline && (
+        <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.22em] text-gray-muted">Radar da API Oficial</div>
+      )}
+    </div>
+  );
 }
 
 const IMPACT: Record<string, { label: string; cls: string }> = {
@@ -66,7 +76,7 @@ export function Section({ title, action, children }: { title: string; action?: R
   return (
     <section className="mb-6">
       <div className="mb-2 flex items-center justify-between px-1">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-gray">{title}</h2>
+        <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-gray">{title}</h2>
         {action}
       </div>
       {children}

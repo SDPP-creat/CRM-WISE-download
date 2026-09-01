@@ -17,8 +17,7 @@ export function Profile() {
   return (
     <div className="px-4 pt-5">
       <div className="mb-6 flex flex-col items-center gap-2 text-center">
-        <Logo width={180} />
-        <p className="text-sm text-gray">Radar da API Oficial</p>
+        <Logo size="lg" />
       </div>
 
       {user ? (

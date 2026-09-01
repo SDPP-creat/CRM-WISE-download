@@ -26,7 +26,7 @@ export function Login() {
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-6 py-10">
-      <div className="mb-8"><Logo width={200} /></div>
+      <div className="mb-8"><Logo size="lg" /></div>
       <form onSubmit={submit} className="card w-full max-w-sm space-y-4 p-6">
         <h1 className="text-lg font-bold">Entrar</h1>
         <div>
