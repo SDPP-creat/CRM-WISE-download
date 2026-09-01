@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #050505;
+  color: #f5f5f5;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Área de toque mínima 44px + safe-area do iPhone */
+.tap { min-height: 44px; min-width: 44px; }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-top { padding-top: env(safe-area-inset-top); }
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
+@layer components {
+  .card { @apply bg-panel border border-border rounded-2xl; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium; }
+  .btn { @apply tap inline-flex items-center justify-center gap-2 rounded-xl px-4 font-semibold transition; }
+  .btn-primary { @apply btn bg-yellow text-black hover:brightness-110; }
+  .btn-ghost { @apply btn border border-border text-gray hover:text-white hover:border-gray-muted; }
+  .input { @apply w-full rounded-xl bg-panel2 border border-border px-4 py-3 text-white placeholder:text-gray-muted focus:border-yellow focus:outline-none; }
+  .label { @apply block text-xs font-medium text-gray mb-1.5; }
+}

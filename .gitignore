@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.wrangler/
+.dev.vars
+.env
+.env.local
+*.local
+coverage/
+*.tsbuildinfo
+.DS_Store
+apps/web/dev-dist/
+apps/web/public/sw.js
+.vscode/
+*.log

@@ -1,0 +1,48 @@
+name = "wise-news-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron: dispara o scheduler que decide o que coletar (respeita interval por fonte).
+[triggers]
+crons = ["*/15 * * * *", "0 3 * * *"]
+
+# --- D1 (dados relacionais + FTS5) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "wise_news"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+# Migrations canônicas ficam no pacote database.
+migrations_dir = "../../packages/database/migrations"
+
+# --- KV (cache, cursores, controle de coleta, rate limiting) ---
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_KV_ID"
+
+# --- R2 (snapshots e mídias permitidas) ---
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "wise-news-snapshots"
+
+# --- Queues (pipeline de processamento) ---
+[[queues.producers]]
+binding = "QUEUE"
+queue = "wise-news-pipeline"
+
+[[queues.consumers]]
+queue = "wise-news-pipeline"
+max_batch_size = 5
+max_retries = 3
+dead_letter_queue = "wise-news-dlq"
+
+[[queues.consumers]]
+queue = "wise-news-dlq"
+max_batch_size = 5
+max_retries = 1
+
+# Variáveis públicas (não-segredas). Segredos via `wrangler secret put`.
+[vars]
+ANTHROPIC_MODEL = "claude-sonnet-4-5"
+AI_MAX_TOKENS = "4096"
+PUBLIC_WEB_URL = "http://localhost:5173"

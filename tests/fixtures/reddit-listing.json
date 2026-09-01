@@ -1,0 +1,42 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": "t3_abc124",
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "id": "abc123",
+          "name": "t3_abc123",
+          "permalink": "/r/WhatsappBusinessAPI/comments/abc123/waba_restricted_after_display_name/",
+          "url": "https://www.reddit.com/r/WhatsappBusinessAPI/comments/abc123/",
+          "title": "WABA restricted right after display name approval",
+          "selftext": "My business account got restricted (#131049) minutes after the display name was approved. Anyone from Brazil seeing this? Docs: https://developers.facebook.com/docs/whatsapp",
+          "author": "anon_user_01",
+          "subreddit": "WhatsappBusinessAPI",
+          "link_flair_text": "Help",
+          "created_utc": 1725100000,
+          "edited": 1725103600,
+          "score": 42,
+          "upvote_ratio": 0.95,
+          "num_comments": 7
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "abc124",
+          "name": "t3_abc124",
+          "permalink": "/r/WhatsappBusinessAPI/comments/abc124/promo/",
+          "title": "DM me for cheap verified BM aged accounts!!!",
+          "selftext": "buy followers and aged BM, WhatsApp me for promo code",
+          "author": "spam_bot",
+          "subreddit": "WhatsappBusinessAPI",
+          "created_utc": 1725100500,
+          "score": -3,
+          "num_comments": 0
+        }
+      }
+    ]
+  }
+}

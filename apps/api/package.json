@@ -1,0 +1,28 @@
+{
+  "name": "@wise-news/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply wise_news --local",
+    "db:migrate:remote": "wrangler d1 migrations apply wise_news --remote",
+    "db:seed:local": "node ../../scripts/seed.mjs --local",
+    "db:seed:remote": "node ../../scripts/seed.mjs --remote"
+  },
+  "dependencies": {
+    "@wise-news/ai": "*",
+    "@wise-news/database": "*",
+    "@wise-news/shared": "*",
+    "@wise-news/source-adapters": "*",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "wrangler": "^3.99.0"
+  }
+}
