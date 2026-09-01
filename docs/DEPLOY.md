@@ -1,5 +1,35 @@
 # Deploy na Cloudflare
 
+## Opção rápida (1 comando, plano GRATUITO)
+
+O plano gratuito cobre tudo o que o WISE NEWS precisa (D1 + KV + Cron + Pages);
+o pipeline roda "inline" (sem Cloudflare Queues). Um script cria os recursos,
+aplica migrations + seed e publica a API e o site:
+
+```bash
+# PowerShell (Windows):
+$env:CLOUDFLARE_API_TOKEN="seu_token"
+$env:CLOUDFLARE_ACCOUNT_ID="seu_account_id"
+# opcionais: $env:ANTHROPIC_API_KEY="...", $env:SEED_ADMIN_PHONE="+55...", $env:SEED_ADMIN_PASSWORD="..."
+node scripts/deploy.mjs
+```
+
+```bash
+# bash/zsh (Mac/Linux):
+CLOUDFLARE_API_TOKEN=seu_token CLOUDFLARE_ACCOUNT_ID=seu_account_id node scripts/deploy.mjs
+```
+
+O token deve ter (todas do tipo **Account**): Workers Scripts:Edit, Workers KV
+Storage:Edit, D1:Edit, Cloudflare Pages:Edit, Account Settings:Read. Ao final o
+script imprime a **URL do site** (`https://wise-news.pages.dev`) e a da API.
+
+Para adicionar/atualizar segredos depois (ex.: ligar a IA):
+`cd apps/api && npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.generated.toml`.
+
+---
+
+## Passo a passo manual
+
 Requisitos: conta Cloudflare, `npm install` já executado, e `npx wrangler login`
 (ou `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` no ambiente).
 
@@ -17,14 +47,12 @@ npx wrangler d1 create wise_news
 # KV (cache, cursores, controle de coleta, rate limit)
 npx wrangler kv namespace create KV
 # → copie "id" para [[kv_namespaces]] em wrangler.toml
-
-# R2 (snapshots e mídias permitidas)
-npx wrangler r2 bucket create wise-news-snapshots
-
-# Queues (pipeline + dead letter queue)
-npx wrangler queues create wise-news-pipeline
-npx wrangler queues create wise-news-dlq
 ```
+
+> No plano gratuito não é preciso criar Queues nem R2 — o pipeline roda inline.
+> Para volume alto, ative o Workers Paid, descomente o bloco de Queues no
+> `wrangler.toml` e crie as filas (`wrangler queues create wise-news-pipeline`
+> e `wise-news-dlq`); o código passa a usar a fila automaticamente.
 
 Edite `apps/api/wrangler.toml` substituindo `REPLACE_WITH_D1_DATABASE_ID` e
 `REPLACE_WITH_KV_ID` pelos valores retornados.
