@@ -10,11 +10,64 @@ const STOPWORDS = new Set(['como', 'para', 'qual', 'quais', 'que', 'the', 'and',
 
 /** Constrói uma consulta de busca a partir da pergunta em linguagem natural. */
 export function buildQuery(text: string): string {
-  const tokens = (text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])
-    .filter((t) => t.length > 2 && !STOPWORDS.has(t))
-    .slice(0, 12);
+  const tokens = queryTerms(text);
   return tokens.join(' ') || text.slice(0, 120);
 }
+
+function queryTerms(text: string): string[] {
+  return (text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])
+    .filter((t) => t.length > 2 && !STOPWORDS.has(t))
+    .slice(0, 12);
+}
+
+/**
+ * Termos do domínio (WhatsApp Business Platform) para barrar resultados fora de
+ * tema. Estritos de propósito: só expressões específicas do assunto — evita que
+ * palavras genéricas (template, verification, api) deixem passar ruído.
+ */
+const DOMAIN_RE = /\b(whatsapp|waba|cloud api|business api|business platform|meta business|business manager|business verification|verifica[cç][aã]o de empresa|embedded signup|display name|nome de exibi[cç][aã]o|messaging limit|limite de mensag|quality rating|account integrity|coexistence|infobip|gupshup|360dialog|phone number id|conta.{0,12}restrit|number.{0,12}restrict)/i;
+
+/**
+ * Relevância 0..100 de um candidato para a pergunta. Combina: cobertura dos
+ * termos da pergunta (peso maior), similaridade de conjunto e um bônus por
+ * mencionar termos do domínio. `onDomain` indica se o candidato é do tema.
+ */
+export function scoreRelevance(question: string, candidateText: string): { relevance: number; onDomain: boolean } {
+  const hay = candidateText.toLowerCase();
+  const terms = queryTerms(question);
+  const hits = terms.filter((t) => hay.includes(t)).length;
+  const coverage = terms.length ? hits / terms.length : 0;
+  const jac = jaccardSimilarity(question, candidateText);
+  const onDomain = DOMAIN_RE.test(candidateText);
+  const relevance = Math.round(coverage * 65 + jac * 25 + (onDomain ? 10 : 0));
+  return { relevance: Math.max(0, Math.min(100, relevance)), onDomain };
+}
+
+/**
+ * Gate rígido para resultados de fórum externo: precisa mencionar WhatsApp/WABA
+ * explicitamente (nosso tema inteiro). Barra ruído de busca ampla — ex.: o GitHub
+ * às vezes devolve issues de AWS/botocore cujo corpo casa palavras genéricas.
+ */
+const WHATSAPP_RE = /\b(whatsapp|waba|wa\.me|business\s+platform|cloud\s+api|embedded\s+signup)\b/i;
+export function isWhatsAppTopic(text: string): boolean {
+  return WHATSAPP_RE.test(text);
+}
+
+/**
+ * Gate final para uma resposta de fórum externo. Exige que o WhatsApp/WABA seja
+ * PROEMINENTE (no título ou no início do corpo) — não basta uma menção perdida no
+ * meio de um changelog gigante (ex.: PRs de dependência do botocore que citam AWS
+ * "WhatsApp flow APIs" no caractere 22k). Também exige relevância mínima.
+ */
+export function passesForumGate(question: string, title: string, body: string): { ok: boolean; relevance: number } {
+  const prominent = `${title}\n${(body ?? '').slice(0, 600)}`;
+  const { relevance } = scoreRelevance(question, `${title}\n${body}`);
+  const ok = isWhatsAppTopic(prominent) && relevance >= MIN_ANSWER_RELEVANCE;
+  return { ok, relevance };
+}
+
+/** Relevância mínima para importar uma resposta de fórum externo. */
+export const MIN_ANSWER_RELEVANCE = 18;
 
 interface QuestionRow { id: number; text: string }
 
@@ -41,7 +94,14 @@ export async function aggregateQuestion(env: Env, questionId: number): Promise<v
     const sourceRow = await env.DB.prepare('SELECT name FROM sources WHERE slug = ?').bind(source.slug).first<{ name: string }>();
     const forum = sourceRow?.name ?? source.slug;
 
-    for (const match of matches.slice(0, 3)) {
+    for (const match of matches.slice(0, 5)) {
+      // Filtro pelo PRÓPRIO TÓPICO (título+corpo), antes de buscar a resposta:
+      // precisa ser sobre WhatsApp/WABA e ter relevância mínima. Assim ruído de
+      // busca ampla (ex.: GitHub) é barrado de cara, sem gastar rede.
+      const gate = passesForumGate(question.text, match.title, match.body);
+      if (!gate.ok) continue;
+      const relevance = gate.relevance;
+
       // Melhor "resposta": comentário/answer mais relevante; senão o próprio post.
       let excerpt = `${match.title}\n${match.body}`.trim();
       let author = match.author;
@@ -58,7 +118,6 @@ export async function aggregateQuestion(env: Env, questionId: number): Promise<v
         }
       } catch { /* sem comentários — usa o post */ }
 
-      const relevance = Math.round(jaccardSimilarity(question.text, `${match.title} ${excerpt}`) * 100);
       const res = await env.DB
         .prepare(
           `INSERT OR IGNORE INTO question_answers
@@ -91,7 +150,8 @@ export async function aggregateQuestion(env: Env, questionId: number): Promise<v
       .all<{ id: number; title: string; url: string; created_at: string; forum: string; slug: string; source_class: string; title_pt: string; summary: string | null; author: string | null }>();
     for (const r of rows.results ?? []) {
       const excerpt = (r.summary || r.title_pt || r.title).slice(0, 2000);
-      const relevance = Math.round(jaccardSimilarity(question.text, `${r.title} ${excerpt}`) * 100);
+      // Índice próprio já é do tema; ainda assim pontua para ordenar por relevância.
+      const { relevance } = scoreRelevance(question.text, `${r.title} ${excerpt}`);
       const res = await env.DB
         .prepare(
           `INSERT OR IGNORE INTO question_answers

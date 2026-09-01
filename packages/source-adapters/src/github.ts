@@ -123,9 +123,12 @@ export const githubAdapter: SourceAdapter = {
   },
 
   async search(query, source, ctx) {
-    // Enviesa a busca para o domínio do WISE NEWS + a pergunta do usuário.
-    const q = `${query} whatsapp in:title,body`;
-    const url = `${API}/search/issues?q=${encodeURIComponent(q)}&sort=updated&order=desc&per_page=15`;
+    // Enviesa para o domínio + exige "whatsapp"; is:issue exclui pull requests
+    // (ex.: PRs de bump de dependência como botocore, que citam "WhatsApp" de raspão).
+    const q = `${query} whatsapp is:issue`;
+    // Sem sort => "best match" (relevância). Ordenar por data traz issues recentes
+    // fora de tema (spam); a relevância traz discussões reais de WhatsApp Cloud API.
+    const url = `${API}/search/issues?q=${encodeURIComponent(q)}&per_page=15`;
     try {
       const data = await httpJson<{ items: GhIssue[] }>(url, { fetchImpl: ctx.fetch, headers: ghHeaders(source) });
       const out: NormalizedPost[] = [];
