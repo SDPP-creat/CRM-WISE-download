@@ -3,6 +3,7 @@ import type { Env } from '../env.js';
 import type { AuthUser } from '../auth.js';
 import { requireRole } from '../auth.js';
 import { audit } from '../db.js';
+import { enqueue } from '../pipeline/enqueue.js';
 
 type Vars = { Variables: { user: AuthUser }; Bindings: Env };
 export const questionRoutes = new Hono<Vars>();
@@ -23,7 +24,7 @@ questionRoutes.post('/', async (c) => {
 
   const res = await c.env.DB.prepare('INSERT INTO questions (user_id, text) VALUES (?, ?)').bind(user.id, text).run();
   const id = res.meta.last_row_id as number;
-  await c.env.QUEUE.send({ type: 'aggregate_question', questionId: id });
+  await enqueue(c.env, { type: 'aggregate_question', questionId: id }, c.executionCtx.waitUntil.bind(c.executionCtx));
   await audit(c.env.DB, String(user.id), 'question_create', 'question', String(id));
   return c.json({ id });
 });
@@ -80,7 +81,7 @@ questionRoutes.post('/:id/refresh', async (c) => {
   const id = Number(c.req.param('id'));
   const q = await c.env.DB.prepare('SELECT id FROM questions WHERE id = ? AND user_id = ?').bind(id, user.id).first();
   if (!q) return c.json({ error: 'Pergunta não encontrada' }, 404);
-  await c.env.QUEUE.send({ type: 'aggregate_question', questionId: id });
+  await enqueue(c.env, { type: 'aggregate_question', questionId: id }, c.executionCtx.waitUntil.bind(c.executionCtx));
   return c.json({ ok: true });
 });
 

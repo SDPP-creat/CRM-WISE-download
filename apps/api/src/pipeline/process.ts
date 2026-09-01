@@ -14,6 +14,7 @@ import {
 import { providerFromEnv } from '@wise-news/ai';
 import { insertComments, syncFts, audit } from '../db.js';
 import { aggregateQuestion, synthesizeQuestion } from './questions.js';
+import { enqueue } from './enqueue.js';
 
 interface PostRow {
   id: number; source_id: number; external_id: string; url: string; title: string; body: string;
@@ -59,8 +60,8 @@ export async function handleFetchComments(env: Env, postId: number): Promise<voi
       console.warn(`fetch_comments falhou post ${postId}`, err);
     }
   }
-  // Encadeia o processamento por IA.
-  await env.QUEUE.send({ type: 'process_post', postId });
+  // Encadeia o processamento por IA (fila ou inline).
+  await enqueue(env, { type: 'process_post', postId });
 }
 
 /** Job 2: análise por IA (ou marca pending se não houver chave). */

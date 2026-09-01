@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { FeedPost } from '@wise-news/shared';
 import { categoryLabel } from '@wise-news/shared';
 import { ImpactBadge, VerificationBadge, timeAgo } from './ui.js';
+import { IconArrowUpRight, IconBookmark } from './icons.js';
 import { useBookmarks } from '../useBookmarks.js';
 
 export function NewsCard({ post }: { post: FeedPost }) {
@@ -20,7 +21,7 @@ export function NewsCard({ post }: { post: FeedPost }) {
         <div className="flex flex-wrap items-center gap-1.5">
           <VerificationBadge status={post.verificationStatus} />
           <ImpactBadge impact={post.impact} />
-          {post.relatedCount > 1 && <span className="chip bg-panel2 text-gray">🗂 {post.relatedCount} relatos</span>}
+          {post.relatedCount > 1 && <span className="chip bg-panel2 text-gray">{post.relatedCount} relatos</span>}
           {post.processingStatus === 'pending' && <span className="chip bg-panel2 text-gray-muted">análise pendente</span>}
         </div>
         <div className="mt-2 flex items-center gap-2 text-xs text-gray-muted">
@@ -30,12 +31,14 @@ export function NewsCard({ post }: { post: FeedPost }) {
         </div>
       </Link>
       <div className="flex border-t border-border">
-        <a href={post.url} target="_blank" rel="noreferrer" className="tap flex-1 py-2.5 text-center text-xs font-medium text-gray hover:text-white">Abrir original ↗</a>
+        <a href={post.url} target="_blank" rel="noreferrer" className="tap flex flex-1 items-center justify-center gap-1.5 py-2.5 text-center text-xs font-medium text-gray hover:text-white">
+          <IconArrowUpRight width={15} height={15} /> Abrir original
+        </a>
         <button
           onClick={() => toggle(post.id)}
-          className={`tap flex-1 border-l border-border py-2.5 text-center text-xs font-medium ${saved ? 'text-yellow' : 'text-gray hover:text-white'}`}
+          className={`tap flex flex-1 items-center justify-center gap-1.5 border-l border-border py-2.5 text-center text-xs font-medium ${saved ? 'text-yellow' : 'text-gray hover:text-white'}`}
         >
-          {saved ? '★ Salvo' : '☆ Salvar'}
+          <IconBookmark width={15} height={15} filled={saved} /> {saved ? 'Salvo' : 'Salvar'}
         </button>
       </div>
     </article>

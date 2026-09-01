@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../store.js';
 import { api } from '../api.js';
 import { Logo } from '../components/ui.js';
+import { IconGlobe, IconShield, IconTag, IconBolt, IconChevronRight } from '../components/icons.js';
 
 export function Profile() {
   const { user, logout } = useAuth();
@@ -32,11 +33,11 @@ export function Profile() {
       )}
 
       <div className="card divide-y divide-border">
-        <Link to="/paises" className="tap flex items-center justify-between px-4 py-3.5 text-sm">🌐 Países <span className="text-gray-muted">›</span></Link>
-        <Link to="/fontes" className="tap flex items-center justify-between px-4 py-3.5 text-sm">📡 Fontes <span className="text-gray-muted">›</span></Link>
-        <Link to="/topicos" className="tap flex items-center justify-between px-4 py-3.5 text-sm">🏷️ Tópicos <span className="text-gray-muted">›</span></Link>
+        <Link to="/paises" className="tap flex items-center gap-3 px-4 py-3.5 text-sm"><IconGlobe width={18} height={18} className="text-gray" /> Países <IconChevronRight width={16} height={16} className="ml-auto text-gray-muted" /></Link>
+        <Link to="/fontes" className="tap flex items-center gap-3 px-4 py-3.5 text-sm"><IconShield width={18} height={18} className="text-gray" /> Fontes <IconChevronRight width={16} height={16} className="ml-auto text-gray-muted" /></Link>
+        <Link to="/topicos" className="tap flex items-center gap-3 px-4 py-3.5 text-sm"><IconTag width={18} height={18} className="text-gray" /> Tópicos <IconChevronRight width={16} height={16} className="ml-auto text-gray-muted" /></Link>
         {user && (user.role === 'admin' || user.role === 'editor') && (
-          <button onClick={() => nav('/admin')} className="tap flex w-full items-center justify-between px-4 py-3.5 text-left text-sm text-yellow">🛠 Painel administrativo <span>›</span></button>
+          <button onClick={() => nav('/admin')} className="tap flex w-full items-center gap-3 px-4 py-3.5 text-left text-sm text-yellow"><IconBolt width={18} height={18} /> Painel administrativo <IconChevronRight width={16} height={16} className="ml-auto" /></button>
         )}
       </div>
 

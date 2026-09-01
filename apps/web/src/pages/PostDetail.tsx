@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { categoryLabel, flagEmoji } from '@wise-news/shared';
 import { api, type PostDetail as Detail } from '../api.js';
 import { ImpactBadge, VerificationBadge, ConfidenceBadge, Spinner, EmptyState, timeAgo } from '../components/ui.js';
+import { IconArrowLeft, IconBookmark, IconArrowUpRight } from '../components/icons.js';
 import { useBookmarks } from '../useBookmarks.js';
 
 const ACTION_LABEL: Record<string, string> = {
@@ -36,9 +37,9 @@ export function PostDetail() {
     <div className="pb-24">
       {/* Cabeçalho */}
       <header className="safe-top sticky top-0 z-20 flex items-center gap-2 bg-bg/95 px-3 py-3 backdrop-blur">
-        <button onClick={() => nav(-1)} className="tap rounded-lg px-2 text-lg text-gray">←</button>
+        <button onClick={() => nav(-1)} className="tap rounded-lg px-2 text-gray"><IconArrowLeft width={20} height={20} /></button>
         <span className="text-sm text-gray">Dossiê</span>
-        <button onClick={() => toggle(numId)} className={`tap ml-auto rounded-lg px-3 text-sm ${isSaved(numId) ? 'text-yellow' : 'text-gray'}`}>{isSaved(numId) ? '★ Salvo' : '☆ Salvar'}</button>
+        <button onClick={() => toggle(numId)} className={`tap ml-auto flex items-center gap-1.5 rounded-lg px-3 text-sm ${isSaved(numId) ? 'text-yellow' : 'text-gray'}`}><IconBookmark width={15} height={15} filled={isSaved(numId)} /> {isSaved(numId) ? 'Salvo' : 'Salvar'}</button>
       </header>
 
       <div className="px-4">
@@ -56,7 +57,7 @@ export function PostDetail() {
         </div>
         <div className="mb-4 flex items-center gap-2 text-xs text-gray-muted">
           <span>{String(p.source_name)}</span><span>·</span><span>@{String(p.author)}</span>
-          <a href={String(p.url)} target="_blank" rel="noreferrer" className="ml-auto text-yellow">Abrir original ↗</a>
+          <a href={String(p.url)} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-1 text-yellow">Abrir original <IconArrowUpRight width={13} height={13} /></a>
         </div>
 
         {p.processing_status === 'pending' && (

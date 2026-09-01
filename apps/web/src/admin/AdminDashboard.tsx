@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { Spinner } from '../components/ui.js';
+import { IconPlay } from '../components/icons.js';
 
 export function AdminDashboard() {
   const [o, setO] = useState<Record<string, number | boolean> | null>(null);
@@ -52,7 +53,7 @@ export function AdminDashboard() {
       </div>
 
       <button onClick={collect} disabled={collecting} className="btn-primary w-full py-3">
-        {collecting ? 'Coletando…' : '▶ Coletar agora (todas as fontes)'}
+        <IconPlay width={16} height={16} /> {collecting ? 'Coletando…' : 'Coletar agora (todas as fontes)'}
       </button>
       {msg && <p className="mt-2 text-center text-xs text-gray">{msg}</p>}
     </div>

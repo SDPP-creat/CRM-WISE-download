@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Logo } from './ui.js';
+import { IconSearch } from './icons.js';
 
 export function AppHeader({ showSearch = true }: { showSearch?: boolean }) {
   const nav = useNavigate();
@@ -13,7 +14,7 @@ export function AppHeader({ showSearch = true }: { showSearch?: boolean }) {
           onClick={() => nav('/buscar')}
           className="mt-3 flex w-full items-center gap-2 rounded-xl border border-border bg-panel2 px-4 py-2.5 text-left text-sm text-gray-muted"
         >
-          🔍 Buscar notícias, países, erros…
+          <IconSearch width={16} height={16} /> Buscar notícias, países, erros…
         </button>
       )}
     </header>

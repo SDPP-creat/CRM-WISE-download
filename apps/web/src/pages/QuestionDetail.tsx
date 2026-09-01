@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type QaAnswer, type QuestionDetail as QDetail } from '../api.js';
 import { ConfidenceBadge, Spinner, EmptyState, timeAgo } from '../components/ui.js';
+import { IconArrowLeft, IconRefresh } from '../components/icons.js';
 
 const CLASS_LABEL: Record<string, string> = {
   official: 'Oficial', partner: 'BSP/Parceiro', community: 'Comunidade', forum: 'Fórum', individual: 'Relato', promo: 'Promo',
@@ -72,9 +73,9 @@ export function QuestionDetail() {
   return (
     <div className="pb-24">
       <header className="safe-top sticky top-0 z-20 flex items-center gap-2 bg-bg/95 px-3 py-3 backdrop-blur">
-        <button onClick={() => nav(-1)} className="tap rounded-lg px-2 text-lg text-gray">←</button>
+        <button onClick={() => nav(-1)} className="tap rounded-lg px-2 text-gray"><IconArrowLeft width={20} height={20} /></button>
         <span className="text-sm text-gray">Pergunta</span>
-        <button onClick={refresh} className="tap ml-auto rounded-lg px-3 text-sm text-yellow">{refreshing ? 'buscando…' : '↻ Atualizar'}</button>
+        <button onClick={refresh} className="tap ml-auto flex items-center gap-1.5 rounded-lg px-3 text-sm text-yellow"><IconRefresh width={15} height={15} /> {refreshing ? 'buscando…' : 'Atualizar'}</button>
       </header>
 
       <div className="px-4">
@@ -92,7 +93,7 @@ export function QuestionDetail() {
             <h2 className="text-sm font-bold text-yellow">Resposta combinada</h2>
             <ConfidenceBadge confidence={ai.ai_confidence ?? data.question.ai_confidence} />
           </div>
-          {aiStatus === 'processing' && <div className="text-sm text-gray">🧠 A IA está sintetizando as respostas dos fóruns…</div>}
+          {aiStatus === 'processing' && <div className="text-sm text-gray">A IA está sintetizando as respostas dos fóruns…</div>}
           {aiStatus === 'pending' && <div className="text-sm text-gray">As respostas foram agrupadas abaixo. A resposta combinada por IA requer a chave de IA configurada.</div>}
           {aiStatus === 'failed' && <div className="text-sm text-alert">Falha ao sintetizar. As respostas por fórum estão abaixo.</div>}
           {(ai.ai_answer ?? data.question.ai_answer) && (

@@ -1,11 +1,11 @@
-import type { D1Database, KVNamespace, R2Bucket, Queue } from '@cloudflare/workers-types';
+import type { D1Database, KVNamespace, Queue } from '@cloudflare/workers-types';
 
 /** Bindings e variáveis do Worker (segredos entram via `wrangler secret put`). */
 export interface Env {
   DB: D1Database;
   KV: KVNamespace;
-  R2: R2Bucket;
-  QUEUE: Queue<PipelineJob>;
+  /** Opcional: só existe no plano pago (Queues). Sem ele, o pipeline roda inline. */
+  QUEUE?: Queue<PipelineJob>;
 
   // Vars / secrets
   ANTHROPIC_API_KEY?: string;

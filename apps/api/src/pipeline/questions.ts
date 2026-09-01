@@ -5,6 +5,7 @@ import type { NormalizedComment, NormalizedPost } from '@wise-news/shared';
 import { jaccardSimilarity, commentSignals, relevanceScore, isNoiseComment } from '@wise-news/shared';
 import { providerFromEnv } from '@wise-news/ai';
 import { loadSources, ftsQuery, audit } from '../db.js';
+import { enqueue } from './enqueue.js';
 
 const STOPWORDS = new Set(['como', 'para', 'qual', 'quais', 'que', 'the', 'and', 'with', 'what', 'how', 'why', 'when', 'meu', 'minha', 'está', 'está', 'sobre', 'uma', 'dos', 'das']);
 
@@ -174,8 +175,8 @@ export async function aggregateQuestion(env: Env, questionId: number): Promise<v
 
   await audit(env.DB, 'system', 'question_aggregated', 'question', String(questionId), { added, total: total?.n ?? 0 });
 
-  // Encadeia a síntese por IA (se houver chave).
-  await env.QUEUE.send({ type: 'synthesize_question', questionId });
+  // Encadeia a síntese por IA (fila ou inline).
+  await enqueue(env, { type: 'synthesize_question', questionId });
 }
 
 function pickBestAnswer(comments: NormalizedComment[]): NormalizedComment | null {

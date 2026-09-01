@@ -1,6 +1,7 @@
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../store.js';
 import { Spinner } from '../components/ui.js';
+import { IconArrowLeft } from '../components/icons.js';
 import { AdminDashboard } from './AdminDashboard.js';
 import { AdminSources } from './AdminSources.js';
 import { AdminReview } from './AdminReview.js';
@@ -37,7 +38,7 @@ export function AdminApp() {
     <div className="min-h-full">
       <header className="safe-top sticky top-0 z-30 border-b border-border bg-panel/95 backdrop-blur">
         <div className="flex items-center gap-3 px-4 py-3">
-          <button onClick={() => nav('/')} className="tap text-gray">←</button>
+          <button onClick={() => nav('/')} className="tap text-gray"><IconArrowLeft width={20} height={20} /></button>
           <span className="font-bold text-yellow">WISE NEWS · Admin</span>
           <span className="ml-auto text-xs text-gray-muted">{user.name} ({user.role})</span>
         </div>

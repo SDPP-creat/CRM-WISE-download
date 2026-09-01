@@ -25,26 +25,25 @@ migrations_dir = "../../packages/database/migrations"
 binding = "KV"
 id = "REPLACE_WITH_KV_ID"
 
-# --- R2 (snapshots e mídias permitidas) ---
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "wise-news-snapshots"
-
-# --- Queues (pipeline de processamento) ---
-[[queues.producers]]
-binding = "QUEUE"
-queue = "wise-news-pipeline"
-
-[[queues.consumers]]
-queue = "wise-news-pipeline"
-max_batch_size = 5
-max_retries = 3
-dead_letter_queue = "wise-news-dlq"
-
-[[queues.consumers]]
-queue = "wise-news-dlq"
-max_batch_size = 5
-max_retries = 1
+# NOTA: no plano gratuito o pipeline roda "inline" (via waitUntil), sem Cloudflare
+# Queues. Para maior robustez em volume alto, ative o Workers Paid e descomente o
+# bloco de Queues abaixo (o código usa a fila automaticamente quando o binding
+# QUEUE existe). O R2 não é usado atualmente.
+#
+# [[queues.producers]]
+# binding = "QUEUE"
+# queue = "wise-news-pipeline"
+#
+# [[queues.consumers]]
+# queue = "wise-news-pipeline"
+# max_batch_size = 5
+# max_retries = 3
+# dead_letter_queue = "wise-news-dlq"
+#
+# [[queues.consumers]]
+# queue = "wise-news-dlq"
+# max_batch_size = 5
+# max_retries = 1
 
 # Variáveis públicas (não-segredas). Segredos via `wrangler secret put`.
 [vars]

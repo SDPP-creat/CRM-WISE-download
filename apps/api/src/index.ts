@@ -10,6 +10,7 @@ import { adminRoutes } from './routes/admin.js';
 import { questionRoutes } from './routes/questions.js';
 import { runCollection } from './pipeline/collect.js';
 import { handleJob } from './pipeline/process.js';
+import { enqueue } from './pipeline/enqueue.js';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -76,7 +77,7 @@ async function revisitOpenQuestions(env: Env): Promise<void> {
     )
     .all<{ id: number }>();
   for (const r of rows.results ?? []) {
-    await env.QUEUE.send({ type: 'aggregate_question', questionId: r.id });
+    await enqueue(env, { type: 'aggregate_question', questionId: r.id });
   }
 }
 

@@ -70,7 +70,7 @@ export function Home() {
         {posts && posts.length > 0 && (
           <>
             {urgent.length > 0 && (
-              <Section title="🚨 Urgentes">
+              <Section title="Urgentes">
                 {urgent.map((p) => <NewsCard key={p.id} post={p} />)}
               </Section>
             )}

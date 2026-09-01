@@ -5,6 +5,7 @@ import { requireRole, hashPassword } from '../auth.js';
 import { adapterSecrets } from '../env.js';
 import { audit, loadSources } from '../db.js';
 import { runCollection } from '../pipeline/collect.js';
+import { enqueue } from '../pipeline/enqueue.js';
 import { getAdapter, defaultContext } from '@wise-news/source-adapters';
 import { providerFromEnv } from '@wise-news/ai';
 
@@ -122,7 +123,7 @@ adminRoutes.get('/review', async (c) => {
 /** Reprocessa uma notícia (reenfileira pipeline). */
 adminRoutes.post('/posts/:id/reprocess', async (c) => {
   const id = Number(c.req.param('id'));
-  await c.env.QUEUE.send({ type: 'process_post', postId: id });
+  await enqueue(c.env, { type: 'process_post', postId: id }, c.executionCtx.waitUntil.bind(c.executionCtx));
   await c.env.DB.prepare('UPDATE posts SET processing_status = ?, ai_error = NULL WHERE id = ?').bind('processing', id).run();
   await audit(c.env.DB, String(c.get('user').id), 'post_reprocess', 'post', String(id));
   return c.json({ ok: true });

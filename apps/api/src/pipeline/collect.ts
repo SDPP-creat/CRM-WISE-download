@@ -2,6 +2,7 @@ import type { Env } from '../env.js';
 import { getAdapter, defaultContext } from '@wise-news/source-adapters';
 import { adapterSecrets } from '../env.js';
 import { insertPost, loadSources, audit } from '../db.js';
+import { enqueue } from './enqueue.js';
 
 /** Executa a coleta das fontes que estão "vencidas" (respeita interval por fonte). */
 export async function runCollection(env: Env, opts: { force?: boolean; slug?: string } = {}): Promise<{ collected: number; newPosts: number }> {
@@ -47,8 +48,8 @@ export async function runCollection(env: Env, opts: { force?: boolean; slug?: st
         if (ins.isNew) {
           created++;
           newPosts++;
-          // Enfileira processamento (comentários + IA).
-          await env.QUEUE.send({ type: 'fetch_comments', postId: ins.postId });
+          // Enfileira processamento (comentários + IA). Sem Queues, roda inline.
+          await enqueue(env, { type: 'fetch_comments', postId: ins.postId });
         }
       }
 

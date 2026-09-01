@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api, type QuestionListItem } from '../api.js';
 import { useAuth } from '../store.js';
 import { Spinner, EmptyState, timeAgo } from '../components/ui.js';
+import { IconSearch } from '../components/icons.js';
 
 export function Questions() {
   const { user } = useAuth();
@@ -54,7 +55,7 @@ export function Questions() {
           />
           {error && <div className="mt-2 text-sm text-alert">{error}</div>}
           <button onClick={ask} disabled={busy} className="btn-primary mt-3 w-full py-3">
-            {busy ? 'Buscando nos fóruns…' : '🔎 Perguntar e agregar respostas'}
+            <IconSearch width={17} height={17} /> {busy ? 'Buscando nos fóruns…' : 'Perguntar e agregar respostas'}
           </button>
           <p className="mt-2 text-center text-xs text-gray-muted">
             Não é preciso conta nos fóruns — buscamos apenas conteúdo público.
