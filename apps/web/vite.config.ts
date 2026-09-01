@@ -46,7 +46,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': { target: process.env.VITE_API_URL || 'http://localhost:8787', changeOrigin: true },
+      // A API (wrangler dev) roda na 8791 por padrão (ver apps/api/wrangler.toml).
+      '/api': { target: process.env.VITE_API_URL || 'http://localhost:8791', changeOrigin: true },
     },
   },
   build: { outDir: 'dist', sourcemap: false },

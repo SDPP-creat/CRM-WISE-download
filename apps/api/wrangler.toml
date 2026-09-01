@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Porta do `wrangler dev` — 8791 para não colidir com outros apps locais (ex.:
+# um ERP na 8787). O front (vite) já aponta o proxy /api para esta porta.
+[dev]
+port = 8791
+
 # Cron: dispara o scheduler que decide o que coletar (respeita interval por fonte).
 [triggers]
 crons = ["*/15 * * * *", "0 3 * * *"]
