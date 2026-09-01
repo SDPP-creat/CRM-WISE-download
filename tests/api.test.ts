@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import worker from '../apps/api/src/index.js';
 import { ftsQuery } from '../apps/api/src/db.js';
+import { buildQuery } from '../apps/api/src/pipeline/questions.js';
 
 // Env mínimo: /health e 404 não tocam no D1.
 const env = {} as unknown as Parameters<typeof worker.fetch>[1];
@@ -24,5 +25,14 @@ describe('FTS query sanitize', () => {
   it('transforma termos em prefixos e limita', () => {
     expect(ftsQuery('WABA restricted')).toBe('waba* restricted*');
     expect(ftsQuery('   ')).toBe('""');
+  });
+});
+
+describe('Perguntas — buildQuery', () => {
+  it('extrai termos relevantes da pergunta (remove stopwords)', () => {
+    const q = buildQuery('Como resolver meu WABA restrito após aprovar o nome de exibição?');
+    expect(q).toContain('waba');
+    expect(q).toContain('restrito');
+    expect(q).not.toContain('como');
   });
 });

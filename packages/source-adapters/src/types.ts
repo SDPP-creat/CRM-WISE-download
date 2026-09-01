@@ -24,6 +24,12 @@ export interface SourceAdapter {
   /** Busca comentários de um post. */
   fetchComments(source: SourceRuntimeConfig, externalId: string, ctx: FetchContext): Promise<NormalizedComment[]>;
 
+  /**
+   * Busca por consulta livre (usado pela feature de Perguntas). Opcional:
+   * conectores sem busca por texto (rss, meta-status) não implementam.
+   */
+  search?(query: string, source: SourceRuntimeConfig, ctx: FetchContext): Promise<NormalizedPost[]>;
+
   /** Converte um payload bruto em NormalizedPost (exposto para testes/fixtures). */
   normalize(raw: unknown, source: SourceRuntimeConfig): NormalizedPost | null;
 

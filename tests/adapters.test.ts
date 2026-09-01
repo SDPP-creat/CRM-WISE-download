@@ -53,6 +53,15 @@ describe('Reddit adapter', () => {
     const bad = { ...redditSource, config: {} };
     expect(redditAdapter.validateConfig(bad).ok).toBe(false);
   });
+
+  it('search retorna posts a partir de uma consulta livre', async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(listing));
+    const ctx = defaultContext({ fetch: fetchMock as unknown as typeof fetch });
+    const out = await redditAdapter.search!('waba restricted', redditSource, ctx);
+    expect(out.length).toBe(2);
+    // a URL de busca deve conter a consulta
+    expect(String(fetchMock.mock.calls[0][0])).toContain('search.json');
+  });
 });
 
 describe('RSS parser', () => {

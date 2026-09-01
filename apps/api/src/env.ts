@@ -24,13 +24,11 @@ export interface Env {
   PUBLIC_WEB_URL?: string;
 }
 
-export type PipelineJobType = 'process_post' | 'fetch_comments';
-
-export interface PipelineJob {
-  type: PipelineJobType;
-  postId: number;
-  attempt?: number;
-}
+export type PipelineJob =
+  | { type: 'process_post'; postId: number; attempt?: number }
+  | { type: 'fetch_comments'; postId: number; attempt?: number }
+  | { type: 'aggregate_question'; questionId: number; attempt?: number }
+  | { type: 'synthesize_question'; questionId: number; attempt?: number };
 
 /** Extrai os segredos relevantes para os adaptadores de fonte. */
 export function adapterSecrets(env: Env): Record<string, string | undefined> {

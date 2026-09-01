@@ -10,6 +10,8 @@ import { Profile } from './pages/Profile.js';
 import { PostDetail } from './pages/PostDetail.js';
 import { Login } from './pages/Login.js';
 import { SourcesPage } from './pages/SourcesPage.js';
+import { Questions } from './pages/Questions.js';
+import { QuestionDetail } from './pages/QuestionDetail.js';
 import { AdminApp } from './admin/AdminApp.js';
 
 export function App() {
@@ -24,6 +26,8 @@ export function App() {
             <Route path="/" element={<Home />} />
             <Route path="/buscar" element={<Search />} />
             <Route path="/topicos" element={<Topics />} />
+            <Route path="/perguntar" element={<Questions />} />
+            <Route path="/pergunta/:id" element={<QuestionDetail />} />
             <Route path="/paises" element={<Countries />} />
             <Route path="/fontes" element={<SourcesPage />} />
             <Route path="/salvos" element={<Saved />} />

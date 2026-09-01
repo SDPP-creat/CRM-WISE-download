@@ -13,6 +13,7 @@ import {
 } from '@wise-news/shared';
 import { providerFromEnv } from '@wise-news/ai';
 import { insertComments, syncFts, audit } from '../db.js';
+import { aggregateQuestion, synthesizeQuestion } from './questions.js';
 
 interface PostRow {
   id: number; source_id: number; external_id: string; url: string; title: string; body: string;
@@ -208,5 +209,7 @@ export async function handleJob(env: Env, job: PipelineJob): Promise<void> {
   switch (job.type) {
     case 'fetch_comments': return handleFetchComments(env, job.postId);
     case 'process_post': return handleProcessPost(env, job.postId);
+    case 'aggregate_question': return aggregateQuestion(env, job.questionId);
+    case 'synthesize_question': return synthesizeQuestion(env, job.questionId);
   }
 }

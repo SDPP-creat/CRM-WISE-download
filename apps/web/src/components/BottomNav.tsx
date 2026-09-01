@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 const items = [
   { to: '/', label: 'Início', icon: '🏠', end: true },
   { to: '/buscar', label: 'Buscar', icon: '🔍' },
-  { to: '/topicos', label: 'Tópicos', icon: '🏷️' },
+  { to: '/perguntar', label: 'Perguntar', icon: '💬' },
   { to: '/salvos', label: 'Salvos', icon: '★' },
   { to: '/perfil', label: 'Perfil', icon: '👤' },
 ];

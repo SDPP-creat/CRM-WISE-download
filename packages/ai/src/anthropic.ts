@@ -1,7 +1,8 @@
 import type { AiInputPost } from '@wise-news/shared';
 import { buildUserPrompt, SYSTEM_PROMPT } from './prompt.js';
-import type { AiProvider, AiResult, ProviderConfig } from './types.js';
+import type { AiProvider, AiResult, AiUsage, ProviderConfig, QaAiResult } from './types.js';
 import { extractJson, validateAnalysis } from './validate.js';
+import { buildQaPrompt, QA_SYSTEM_PROMPT, validateQaResult, type QaAnswerInput } from './qa.js';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const DEFAULT_MODEL = 'claude-sonnet-4-5';
@@ -37,24 +38,15 @@ export class AnthropicProvider implements AiProvider {
     this.fetchImpl = config.fetchImpl ?? globalThis.fetch;
   }
 
-  async analyze(input: AiInputPost): Promise<AiResult> {
-    const body = {
-      model: this.model,
-      max_tokens: this.maxTokens,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: buildUserPrompt(input) }],
-    };
-
+  /** Chamada base à API de mensagens, com retry/backoff. Retorna texto + uso. */
+  private async callJson(system: string, user: string): Promise<{ text: string; usage: AiUsage }> {
+    const body = { model: this.model, max_tokens: this.maxTokens, system, messages: [{ role: 'user', content: user }] };
     let lastErr: unknown;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const res = await this.fetchImpl(API_URL, {
           method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': this.apiKey,
-            'anthropic-version': '2023-06-01',
-          },
+          headers: { 'content-type': 'application/json', 'x-api-key': this.apiKey, 'anthropic-version': '2023-06-01' },
           body: JSON.stringify(body),
         });
         if (res.status === 429 || res.status >= 500) {
@@ -65,22 +57,27 @@ export class AnthropicProvider implements AiProvider {
         if (!res.ok) throw new Error(`Anthropic HTTP ${res.status}: ${await res.text()}`);
         const json = (await res.json()) as AnthropicResponse;
         const text = json.content.filter((c) => c.type === 'text').map((c) => c.text ?? '').join('');
-        const analysis = validateAnalysis(extractJson(text));
         const inputTokens = json.usage?.input_tokens ?? 0;
         const outputTokens = json.usage?.output_tokens ?? 0;
         const price = priceFor(json.model ?? this.model);
         const costUsd = (inputTokens / 1_000_000) * price.in + (outputTokens / 1_000_000) * price.out;
-        return {
-          analysis,
-          usage: { provider: this.name, model: json.model ?? this.model, inputTokens, outputTokens, costUsd },
-        };
+        return { text, usage: { provider: this.name, model: json.model ?? this.model, inputTokens, outputTokens, costUsd } };
       } catch (err) {
         lastErr = err;
-        // Erro de validação/JSON: tenta mais uma vez (a IA pode corrigir).
         await new Promise((r) => setTimeout(r, 2 ** attempt * 500));
       }
     }
-    throw lastErr instanceof Error ? lastErr : new Error('Falha na análise da IA.');
+    throw lastErr instanceof Error ? lastErr : new Error('Falha na chamada da IA.');
+  }
+
+  async analyze(input: AiInputPost): Promise<AiResult> {
+    const { text, usage } = await this.callJson(SYSTEM_PROMPT, buildUserPrompt(input));
+    return { analysis: validateAnalysis(extractJson(text)), usage };
+  }
+
+  async answerQuestion(input: QaAnswerInput): Promise<QaAiResult> {
+    const { text, usage } = await this.callJson(QA_SYSTEM_PROMPT, buildQaPrompt(input));
+    return { result: validateQaResult(extractJson(text)), usage };
   }
 
   async ping(): Promise<{ ok: boolean; message: string }> {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractJson, validateAnalysis, buildUserPrompt } from '@wise-news/ai';
+import { extractJson, validateAnalysis, buildUserPrompt, validateQaResult, buildQaPrompt } from '@wise-news/ai';
 import type { AiAnalysis } from '@wise-news/shared';
 
 const valid: AiAnalysis = {
@@ -41,5 +41,27 @@ describe('validação estruturada da IA', () => {
     const p = buildUserPrompt({ title: 'T', body: 'B', author: 'a', sourceName: 's', sourceClass: 'community', url: 'http://x', createdAt: '2026-01-01', comments: [] });
     expect(p).toContain('translated_title');
     expect(p).toContain('GLOBAL');
+  });
+});
+
+describe('Perguntas — resposta combinada (IA)', () => {
+  it('valida um resultado de Q&A correto', () => {
+    const ok = {
+      answer_pt_br: 'Segundo o Reddit e o Stack Overflow, o erro #131049 indica Account Integrity.',
+      confidence: 'medium',
+      per_source: [{ forum: 'Reddit', stance: 'restrição temporária', note: 'resolvido em 48h' }],
+      contradictions: [],
+      caveats: ['baseado em relatos'],
+    };
+    expect(() => validateQaResult(ok)).not.toThrow();
+  });
+  it('rejeita confiança inválida', () => {
+    expect(() => validateQaResult({ answer_pt_br: 'x', confidence: 'talvez', per_source: [], contradictions: [], caveats: [] })).toThrow();
+  });
+  it('prompt de Q&A inclui a pergunta e as respostas com o fórum', () => {
+    const p = buildQaPrompt({ question: 'Por que meu WABA foi restrito?', answers: [{ forum: 'Reddit', author: 'x', excerpt: 'erro 131049', url: 'http://r' }] });
+    expect(p).toContain('WABA');
+    expect(p).toContain('Reddit');
+    expect(p).toContain('answer_pt_br');
   });
 });

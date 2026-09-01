@@ -107,6 +107,22 @@ export const hackernewsAdapter: SourceAdapter = {
     return out;
   },
 
+  async search(query, source, ctx) {
+    const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&tags=story&hitsPerPage=15`;
+    try {
+      const data = await httpJson<{ hits: HnHit[] }>(url, { fetchImpl: ctx.fetch });
+      const out: NormalizedPost[] = [];
+      for (const hit of data.hits ?? []) {
+        const np = normalizeHit(hit, source);
+        if (np) out.push(np);
+      }
+      return out;
+    } catch (err) {
+      ctx.logger?.('hackernews search falhou', err);
+      return [];
+    }
+  },
+
   normalize(raw, source) {
     return normalizeHit(raw as HnHit, source);
   },

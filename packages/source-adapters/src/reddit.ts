@@ -185,6 +185,32 @@ export const redditAdapter: SourceAdapter = {
     return out;
   },
 
+  async search(query, source, ctx) {
+    const token = await getToken(source, ctx);
+    const base = token ? OAUTH_BASE : PUBLIC_BASE;
+    // Restringe a busca aos subreddits monitorados (se houver) para reduzir ruído.
+    const subs = (source.config.subreddits as string[]) ?? [];
+    const restrict = subs.length ? `&restrict_sr=on` : '';
+    const scope = subs.length ? `/r/${subs.slice(0, 8).join('+')}` : '';
+    const url = `${base}${scope}/search.json?q=${encodeURIComponent(query)}&sort=relevance&t=year&limit=15${restrict}`;
+    try {
+      const data = await httpJson<RedditListing>(url, {
+        fetchImpl: ctx.fetch,
+        headers: { 'user-agent': userAgent(source), ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      });
+      const out: NormalizedPost[] = [];
+      for (const child of data.data.children) {
+        if (child.kind !== 't3') continue;
+        const np = normalizePost(child.data, source);
+        if (np) out.push(np);
+      }
+      return out;
+    } catch (err) {
+      ctx.logger?.('reddit search falhou', err);
+      return [];
+    }
+  },
+
   normalize(raw, source) {
     return normalizePost(raw as RedditThing, source);
   },

@@ -66,6 +66,12 @@ export const api = {
   logout: () => req<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
   me: () => req<{ user: AuthUser | null }>('/api/auth/me'),
 
+  // Perguntas (Q&A agregado)
+  questions: () => req<{ questions: QuestionListItem[] }>('/api/questions'),
+  createQuestion: (text: string) => req<{ id: number }>('/api/questions', { method: 'POST', body: JSON.stringify({ text }) }),
+  question: (id: number | string) => req<QuestionDetail>(`/api/questions/${id}`),
+  refreshQuestion: (id: number | string) => req<{ ok: boolean }>(`/api/questions/${id}/refresh`, { method: 'POST' }),
+
   // User
   bookmarks: () => req<FeedResponse>('/api/me/bookmarks'),
   addBookmark: (id: number) => req<{ ok: boolean }>(`/api/me/bookmarks/${id}`, { method: 'POST' }),
@@ -96,3 +102,22 @@ export const api = {
 };
 
 export interface AuthUser { id: number; name: string; phone: string; role: 'admin' | 'editor' | 'reader' }
+
+export interface QuestionListItem {
+  id: number; text: string; status: string; ai_status: string; answers_count: number; created_at: string; updated_at: string;
+}
+export interface QaAnswer {
+  id: number; forum: string; source_slug?: string; source_class?: string; post_id?: number | null;
+  author?: string | null; title?: string | null; excerpt: string; url: string; score?: number | null; relevance?: number | null; lang?: string | null; created_at?: string | null;
+}
+export interface QuestionDetail {
+  question: {
+    id: number; text: string; status: string; ai_status: string; answers_count: number; created_at: string; last_checked_at: string | null;
+    ai_answer: string | null; ai_confidence: 'high' | 'medium' | 'low' | null;
+    ai_per_source: Array<{ forum: string; stance: string; note: string }>;
+    ai_contradictions: string[]; ai_caveats: string[]; ai_error: string | null;
+  };
+  answers: QaAnswer[];
+  byForum: Record<string, QaAnswer[]>;
+  forums: string[];
+}

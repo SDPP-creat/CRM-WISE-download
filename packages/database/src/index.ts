@@ -70,4 +70,4 @@ export function seedSql(): string {
 }
 
 /** Nomes das migrations, na ordem de aplicação (para wrangler / testes). */
-export const MIGRATION_FILES = ['0001_init.sql'];
+export const MIGRATION_FILES = ['0001_init.sql', '0002_questions.sql'];

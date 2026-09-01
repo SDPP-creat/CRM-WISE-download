@@ -110,6 +110,25 @@ export const stackexchangeAdapter: SourceAdapter = {
     }));
   },
 
+  async search(query, source, ctx) {
+    const site = (source.config.site as string) ?? 'stackoverflow';
+    const key = source.secrets.STACKEXCHANGE_KEY;
+    const params = new URLSearchParams({ order: 'desc', sort: 'relevance', q: query, site, filter: 'withbody', pagesize: '15' });
+    if (key) params.set('key', key);
+    try {
+      const data = await httpJson<SEResponse<SEItem>>(`${API}/search/advanced?${params}`, { fetchImpl: ctx.fetch });
+      const out: NormalizedPost[] = [];
+      for (const item of data.items ?? []) {
+        const np = normalizeQuestion(item, source);
+        if (np) out.push(np);
+      }
+      return out;
+    } catch (err) {
+      ctx.logger?.('stackexchange search falhou', err);
+      return [];
+    }
+  },
+
   normalize(raw, source) {
     return normalizeQuestion(raw as SEItem, source);
   },

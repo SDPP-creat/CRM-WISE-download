@@ -122,6 +122,24 @@ export const githubAdapter: SourceAdapter = {
     }
   },
 
+  async search(query, source, ctx) {
+    // Enviesa a busca para o domínio do WISE NEWS + a pergunta do usuário.
+    const q = `${query} whatsapp in:title,body`;
+    const url = `${API}/search/issues?q=${encodeURIComponent(q)}&sort=updated&order=desc&per_page=15`;
+    try {
+      const data = await httpJson<{ items: GhIssue[] }>(url, { fetchImpl: ctx.fetch, headers: ghHeaders(source) });
+      const out: NormalizedPost[] = [];
+      for (const issue of data.items ?? []) {
+        const np = normalizeIssue(issue, source);
+        if (np) out.push(np);
+      }
+      return out;
+    } catch (err) {
+      ctx.logger?.('github search falhou', err);
+      return [];
+    }
+  },
+
   normalize(raw, source) {
     return normalizeIssue(raw as GhIssue, source);
   },

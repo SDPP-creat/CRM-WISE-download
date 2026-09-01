@@ -127,6 +127,23 @@ Em produção, use `wrangler secret put <NOME>` (nunca comite segredos).
 Classes de fonte (`official`, `partner/BSP`, `community`, `forum`, `individual`, `promo`)
 são usadas na verificação — **um BSP nunca é tratado como fonte independente da Meta**.
 
+## Perguntas (Q&A agregado dos fóruns)
+
+Você escreve uma pergunta em **Perguntar** (aba inferior). O sistema **busca ao vivo**
+nos fóruns que suportam busca por texto (Reddit, Stack Overflow, GitHub, Hacker News)
+**e** no índice próprio (FTS), traz as respostas **agrupadas por fórum** (com autor, votos,
+% de relevância e link direto) e a IA monta uma **resposta combinada citando cada fórum**
+(com confiança, contradições e ressalvas). A pergunta fica **monitorada**: o cron re-agrega
+perguntas abertas de tempos em tempos e novas respostas entram **ao vivo via SSE**.
+
+- **Não é preciso login nos fóruns** — o sistema só lê conteúdo público (respeita ToS).
+  O único login é o do WISE NEWS. Postar automaticamente nos fóruns **não** é feito
+  (inviável no Stack Overflow, arriscado/banível no Reddit).
+- Sem `ANTHROPIC_API_KEY`: as respostas por fórum aparecem normalmente; só a **resposta
+  combinada por IA** fica pendente (não inventa).
+- Endpoints: `POST /api/questions`, `GET /api/questions`, `GET /api/questions/:id`,
+  `POST /api/questions/:id/refresh`, `GET /api/questions/:id/stream` (SSE).
+
 ## Pipeline
 
 1. **Cron** (`*/15 * * * *` + varredura diária) chama o coletor, que respeita o

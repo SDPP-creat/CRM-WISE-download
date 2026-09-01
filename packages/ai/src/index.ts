@@ -4,6 +4,7 @@ import type { AiProvider, ProviderConfig } from './types.js';
 export * from './types.js';
 export * from './prompt.js';
 export * from './validate.js';
+export * from './qa.js';
 export { AnthropicProvider } from './anthropic.js';
 
 /**
