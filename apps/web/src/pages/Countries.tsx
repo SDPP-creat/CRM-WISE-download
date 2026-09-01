@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import type { FeedPost } from '@wise-news/shared';
 import { api } from '../api.js';
 import { NewsCard } from '../components/NewsCard.js';
+import { Flag } from '../components/Flag.js';
 import { Spinner, EmptyState } from '../components/ui.js';
 
 export function Countries() {
@@ -24,7 +25,7 @@ export function Countries() {
       <div className="mb-4 flex flex-wrap gap-2">
         {list.map((c) => (
           <button key={c.code} onClick={() => setParams({ code: c.code })} className={`chip tap px-3 ${code === c.code ? 'bg-yellow text-black' : 'bg-panel2 text-gray'}`}>
-            <span>{c.flag}</span> {c.name} <span className={code === c.code ? 'text-black/60' : 'text-gray-muted'}>{c.count}</span>
+            <Flag code={c.code} name={c.name} size={16} /> {c.name} <span className={code === c.code ? 'text-black/60' : 'text-gray-muted'}>{c.count}</span>
           </button>
         ))}
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { categoryLabel, flagEmoji } from '@wise-news/shared';
+import { categoryLabel } from '@wise-news/shared';
+import { Flag } from '../components/Flag.js';
 import { api, type PostDetail as Detail } from '../api.js';
 import { ImpactBadge, VerificationBadge, ConfidenceBadge, Spinner, EmptyState, timeAgo } from '../components/ui.js';
 import { IconArrowLeft, IconBookmark, IconArrowUpRight } from '../components/icons.js';
@@ -44,7 +45,7 @@ export function PostDetail() {
 
       <div className="px-4">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray">
-          <span className="text-lg leading-none" title={p.country_name}>{p.flag ?? flagEmoji(String(p.country_code))}</span>
+          <Flag code={String(p.country_code ?? '')} name={String(p.country_name ?? '')} size={20} />
           <span>{p.country_name}</span>
           <span className="chip bg-panel2 text-yellow">{categoryLabel(String(p.category_primary ?? ''))}</span>
           <span>· {timeAgo(String(p.created_at))}</span>

@@ -43,6 +43,16 @@ export default defineConfig({
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
+          {
+            // Bandeiras dos países (imagens) — cacheadas por bastante tempo.
+            urlPattern: ({ url }) => url.hostname === 'flagcdn.com',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'wise-news-flags',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
       devOptions: { enabled: false },

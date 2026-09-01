@@ -3,6 +3,7 @@ import type { FeedPost } from '@wise-news/shared';
 import { categoryLabel } from '@wise-news/shared';
 import { ImpactBadge, VerificationBadge, timeAgo } from './ui.js';
 import { IconArrowUpRight, IconBookmark } from './icons.js';
+import { Flag } from './Flag.js';
 import { useBookmarks } from '../useBookmarks.js';
 
 export function NewsCard({ post }: { post: FeedPost }) {
@@ -12,7 +13,7 @@ export function NewsCard({ post }: { post: FeedPost }) {
     <article className="card mb-3 overflow-hidden">
       <Link to={`/post/${post.id}`} className="block p-4">
         <div className="mb-2 flex items-center gap-2 text-xs text-gray">
-          <span className="text-base leading-none" title={post.countryName}>{post.flag}</span>
+          <Flag code={post.countryCode} name={post.countryName} size={18} />
           <span className="chip bg-panel2 text-yellow">{categoryLabel(post.categoryPrimary)}</span>
           <span className="ml-auto">{timeAgo(post.createdAt)}</span>
         </div>

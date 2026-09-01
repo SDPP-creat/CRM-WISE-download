@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { Flag } from '../components/Flag.js';
 import { Spinner, Section } from '../components/ui.js';
 
 export function Topics() {
@@ -34,7 +35,7 @@ export function Topics() {
           <div className="flex flex-wrap gap-2">
             {countries.slice(0, 12).map((c) => (
               <Link key={c.code} to={`/paises?code=${c.code}`} className="chip bg-panel2 text-gray tap px-3">
-                <span>{c.flag}</span> {c.name} <span className="text-gray-muted">{c.count}</span>
+                <Flag code={c.code} name={c.name} size={16} /> {c.name} <span className="text-gray-muted">{c.count}</span>
               </Link>
             ))}
           </div>
