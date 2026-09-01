@@ -38,7 +38,7 @@ const env = { ...process.env };
 
 function run(cmd, args, opts = {}) {
   console.log(`\n$ ${cmd} ${args.join(' ')}`);
-  const res = spawnSync(cmd, args, { cwd: opts.cwd || apiDir, env, encoding: 'utf8', input: opts.input });
+  const res = spawnSync(cmd, args, { cwd: opts.cwd || apiDir, env: { ...env, ...(opts.env || {}) }, encoding: 'utf8', input: opts.input });
   if (res.stdout) process.stdout.write(res.stdout);
   if (res.stderr) process.stderr.write(res.stderr);
   if (res.status !== 0 && !opts.allowFail) {
