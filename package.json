@@ -1,0 +1,34 @@
+{
+  "name": "wise-news",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WISE NEWS — Radar da API Oficial. Central mundial de notícias e inteligência sobre a WhatsApp Business Platform.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:api": "npm run dev --workspace apps/api",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "typecheck": "tsc -b --pretty",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate:local": "npm run db:migrate:local --workspace apps/api",
+    "db:seed:local": "npm run db:seed:local --workspace apps/api"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^6.0.5",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

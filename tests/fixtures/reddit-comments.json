@@ -1,0 +1,35 @@
+[
+  { "kind": "Listing", "data": { "after": null, "children": [] } },
+  {
+    "kind": "Listing",
+    "data": {
+      "after": null,
+      "children": [
+        {
+          "kind": "t1",
+          "data": {
+            "id": "cmt1",
+            "parent_id": "t3_abc123",
+            "author": "helper_dev",
+            "body": "I had the exact same issue. Error #131049 means account integrity flagged you. I contacted support via https://business.facebook.com/help and it was restored in 48h.",
+            "score": 15,
+            "created_utc": 1725104000,
+            "permalink": "/r/WhatsappBusinessAPI/comments/abc123/_/cmt1/"
+          }
+        },
+        {
+          "kind": "t1",
+          "data": {
+            "id": "cmt2",
+            "parent_id": "t3_abc123",
+            "author": "lol_guy",
+            "body": "lol same",
+            "score": 1,
+            "created_utc": 1725104500,
+            "permalink": "/r/WhatsappBusinessAPI/comments/abc123/_/cmt2/"
+          }
+        }
+      ]
+    }
+  }
+]
