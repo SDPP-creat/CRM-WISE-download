@@ -15,6 +15,7 @@ import { providerFromEnv } from '@wise-news/ai';
 import { insertComments, syncFts, audit } from '../db.js';
 import { aggregateQuestion, synthesizeQuestion } from './questions.js';
 import { enqueue } from './enqueue.js';
+import { sendPushToAll } from '../push.js';
 
 interface PostRow {
   id: number; source_id: number; external_id: string; url: string; title: string; body: string;
@@ -182,10 +183,20 @@ async function maybeNotify(env: Env, postId: number, a: AiAnalysis): Promise<voi
   const official = a.verification.status === 'confirmed_official' || a.topics.includes('mudanca-oficial');
   if (!highImpact && !official) return;
   const dedupeKey = `post:${postId}`;
-  await env.DB
+  const res = await env.DB
     .prepare('INSERT OR IGNORE INTO notifications (user_id, post_id, title, body, kind, dedupe_key) VALUES (NULL, ?, ?, ?, ?, ?)')
     .bind(postId, a.translated_title, a.wise_analysis.conclusion.slice(0, 200), official ? 'official_change' : 'impact', dedupeKey)
     .run();
+
+  // Push para o celular — só se for realmente nova (evita repetir).
+  if (res.meta.changes) {
+    await sendPushToAll(env, {
+      title: official ? '🟡 Mudança oficial — WISE NEWS' : '🚨 Alerta — WISE NEWS',
+      body: a.translated_title,
+      url: `/post/${postId}`,
+      tag: dedupeKey,
+    }).catch((err) => console.warn('push falhou', err));
+  }
 }
 
 async function buildSource(env: Env, post: PostRow) {

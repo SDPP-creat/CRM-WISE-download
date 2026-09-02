@@ -32,6 +32,8 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        // Handler de Web Push (barra de notificação do celular).
+        importScripts: ['/sw-push.js'],
         navigateFallback: '/index.html',
         runtimeCaching: [
           {

@@ -4,6 +4,7 @@ import { useAuth } from '../store.js';
 import { api } from '../api.js';
 import { Logo } from '../components/ui.js';
 import { IconGlobe, IconShield, IconTag, IconBolt, IconChevronRight } from '../components/icons.js';
+import { NotifyButton } from '../components/NotifyButton.js';
 
 export function Profile() {
   const { user, logout } = useAuth();
@@ -27,7 +28,11 @@ export function Profile() {
           <div className="text-xs text-gray-muted">{user.phone}</div>
           <button onClick={() => logout()} className="btn-ghost mt-3 w-full py-2">Sair</button>
         </div>
-      ) : (
+      ) : null}
+
+      {user && <NotifyButton />}
+
+      {!user && (
         <Link to="/login" className="btn-primary mb-4 w-full py-3">Entrar</Link>
       )}
 

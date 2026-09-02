@@ -77,6 +77,8 @@ export const api = {
   addBookmark: (id: number) => req<{ ok: boolean }>(`/api/me/bookmarks/${id}`, { method: 'POST' }),
   removeBookmark: (id: number) => req<{ ok: boolean }>(`/api/me/bookmarks/${id}`, { method: 'DELETE' }),
   notifications: () => req<{ notifications: Array<Record<string, unknown>> }>('/api/me/notifications'),
+  pushKey: () => req<{ publicKey: string | null }>('/api/me/push/key'),
+  pushSubscribe: (sub: { endpoint: string; keys: { p256dh: string; auth: string } }) => req<{ ok: boolean }>('/api/me/push/subscribe', { method: 'POST', body: JSON.stringify(sub) }),
 
   // Admin
   admin: {
